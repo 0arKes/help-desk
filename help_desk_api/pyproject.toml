@@ -1,0 +1,38 @@
+[project]
+name = "help-desk-api"
+version = "0.1.0"
+description = ""
+authors = [
+    {name = "0arKes",email = "proarKes@gmail.com"}
+]
+readme = "README.md"
+requires-python = ">=3.14,<4.0"
+dependencies = [
+    "alembic (>=1.18.5,<2.0.0)",
+    "sqlalchemy (>=2.0.51,<3.0.0)",
+    "fastapi[standard] (>=0.139.0,<0.140.0)",
+    "pydantic-settings (>=2.14.2,<3.0.0)"
+]
+
+[tool.poetry]
+packages = [{include = "help_desk_api", from = "src"}]
+
+[build-system]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[dependency-groups]
+dev = [
+    "pytest (>=9.1.1,<10.0.0)",
+    "pytest-cov (>=7.1.0,<8.0.0)",
+    "taskipy (>=1.14.1,<2.0.0)"
+]
+
+[tool.pytest]
+pythonpath = ['.']
+addopts = ['-p', 'no:warnings', '--cov=fast_zero', '--cov-context=test']
+
+[tool.taskipy.tasks]
+run = 'fastapi dev ./src/help_desk_api/main.py'
+test = 'pytest -s -x -vv'
+post_test = 'coverage html --show-contexts'
