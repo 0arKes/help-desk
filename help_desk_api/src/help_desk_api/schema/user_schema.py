@@ -1,16 +1,16 @@
 from help_desk_api.db.enum.user_role import UserRole
-from pydantic import BaseModel
+from pydantic import BaseModel, EmailStr, Field
 
 
 class CreateUser(BaseModel):
     name: str
     email: str
-    password: str
+    password: str = Field(min_length=6)
     role: UserRole
 
 
 class ReadUser(BaseModel):
     id: int
     name: str
-    email: str
+    email: EmailStr
     role: UserRole
