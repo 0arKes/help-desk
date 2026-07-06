@@ -6,6 +6,7 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 
+# create user
 def create_user(session: Session, form: CreateUser) -> User:
     validate_email_available(session, form.email)
 
@@ -27,3 +28,6 @@ def validate_email_available(session: Session, email: str):
     get_email = session.scalar(select(User).where(User.email == email))
     if get_email:
         raise user_exceptions.EmailAlreadyExistsException
+
+
+# end of create user
