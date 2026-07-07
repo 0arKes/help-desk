@@ -41,6 +41,12 @@ def get_user_by_email(session: Session, email: str) -> User | None:
     return get_user
 
 
+def get_user_by_id(session: Session, id: int) -> User | None:
+    get_user = session.scalar(select(User).where(User.id == id))
+
+    return get_user
+
+
 def authenticate_user(session: Session, form: OAuth2PasswordRequestForm):
     user = get_user_by_email(session, form.username)
 
