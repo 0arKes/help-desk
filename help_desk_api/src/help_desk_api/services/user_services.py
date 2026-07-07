@@ -13,7 +13,7 @@ def create_user(session: Session, form: CreateUser) -> User:
     validate_email_available(session, form.email)
 
     new_user = User(
-        name=form.name,
+        name=form.name.capitalize(),
         email=form.email.lower(),
         password=get_password_hash(form.password),
         role=form.role,

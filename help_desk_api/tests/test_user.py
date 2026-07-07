@@ -31,3 +31,16 @@ def test_with_exist_email(client, user):
     )
 
     assert response.status_code == 409
+
+
+def test_registry_password_short(client):
+    response: Response = client.post(
+        "/auth/register",
+        json={
+            "name": "User test",
+            "email": "test@test.com",
+            "password": "1",
+            "role": "admin",
+        },
+    )
+    assert response.status_code == 422
