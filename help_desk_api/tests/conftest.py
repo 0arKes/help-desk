@@ -55,3 +55,12 @@ def user(session) -> User:
     session.refresh(user)
 
     return user
+
+
+@pytest.fixture
+def token(client, user) -> str:
+    response = client.post(
+        "/auth/login", data={"username": user.email, "password": "123456"}
+    )
+    response_token = response.json()
+    return response_token.get("access_token")
