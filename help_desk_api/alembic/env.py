@@ -3,6 +3,7 @@ from logging.config import fileConfig
 from alembic import context
 from help_desk_api.config.settings import settings
 from help_desk_api.db.base import mapper_registry
+from help_desk_api.db.models.ticket import Ticket  # noqa: F401
 from help_desk_api.db.models.user import User  # noqa: F401
 from sqlalchemy import engine_from_config, pool
 
