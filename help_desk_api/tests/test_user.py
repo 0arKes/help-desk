@@ -12,11 +12,13 @@ def test_register_user(client):
             "role": "admin",
         },
     )
-    assert response.json()["id"] == 1
-    assert response.json()["name"] == "User test"
-    assert response.json()["email"] == "user_email@test.com"
-    assert "password" not in response.json()
-    assert response.json()["role"] == "admin"
+    response_json = response.json()
+
+    assert response_json["id"] == 1
+    assert response_json["name"] == "User test"
+    assert response_json["email"] == "user_email@test.com"
+    assert "password" not in response_json
+    assert response_json["role"] == "admin"
 
 
 def test_with_exist_email(client, user):
@@ -70,3 +72,24 @@ def test_get_access_token_with_wrong_email(client):
     )
 
     assert response.status_code == status.HTTP_401_UNAUTHORIZED
+
+
+def test_get_me(client, token):
+    response = client.get("/auth/me", headers={"Authorization": f"Bearer {token}"})
+
+    response_json = response.json()
+
+    assert response.status_code == status.HTTP_200_OK
+    assert response_json["id"] == 1
+    assert response_json["name"] == "test"
+    assert response_json["email"] == "test@test.com"
+    assert "password" not in response_json
+    assert response_json["role"] == "admin"
+
+
+def test_get_me_without_token(client):
+    response: Response = client.get(
+        "/auth/me", headers={"Authorization": "Bearer no_content"}
+    )
+
+    assert response.status_code == status.HTTP_403_FORBIDDEN

@@ -23,6 +23,6 @@ def login(
     return authenticate_user(session, form)
 
 
-@router.get("/")
+@router.get("/me", response_model=ReadUser, status_code=status.HTTP_200_OK)
 def test(user=Depends(get_current_user)):
-    pass
+    return user
