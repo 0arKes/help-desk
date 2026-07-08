@@ -12,12 +12,11 @@ def test_register_user(client):
             "role": "admin",
         },
     )
-    assert response.json() == {
-        "id": 1,
-        "name": "User test",
-        "email": "user_email@test.com",
-        "role": "admin",
-    }
+    assert response.json()["id"] == 1
+    assert response.json()["name"] == "User test"
+    assert response.json()["email"] == "user_email@test.com"
+    assert "password" not in response.json()
+    assert response.json()["role"] == "admin"
 
 
 def test_with_exist_email(client, user):
@@ -31,7 +30,7 @@ def test_with_exist_email(client, user):
         },
     )
 
-    assert response.status_code == 409
+    assert response.status_code == status.HTTP_409_CONFLICT
 
 
 def test_registry_password_short(client):
@@ -44,7 +43,7 @@ def test_registry_password_short(client):
             "role": "admin",
         },
     )
-    assert response.status_code == 422
+    assert response.status_code == status.HTTP_422_UNPROCESSABLE_CONTENT
 
 
 def test_get_access_token(client, user):
