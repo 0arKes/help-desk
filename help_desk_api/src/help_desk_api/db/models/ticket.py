@@ -17,9 +17,10 @@ class Ticket:
     title: Mapped[str] = mapped_column(String(60))
     description: Mapped[str] = mapped_column(Text)
 
-    creator_id: Mapped[int] = mapped_column(ForeignKey("user.id"))
+    creator_id: Mapped[int] = mapped_column(ForeignKey("user.id"), init=False)
     creator: Mapped[User] = relationship(
-        back_populates="created_tickets", foreign_keys=[creator_id], init=False
+        back_populates="created_tickets",
+        foreign_keys=[creator_id],
     )
 
     responsible_id: Mapped[int | None] = mapped_column(
