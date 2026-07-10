@@ -13,3 +13,11 @@ class InvalidUserRole(HTTPException):
         super().__init__(
             status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized action"
         )
+
+
+class TicketHasBeenAssigned(HTTPException):
+    def __init__(self):
+        super().__init__(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="This ticket already has an assignee and cannot be modified.",
+        )
