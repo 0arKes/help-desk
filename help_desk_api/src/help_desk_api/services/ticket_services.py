@@ -43,7 +43,7 @@ def get_my_tickets(user: User, session: Session):
         .where(Ticket.creator_id == user.id)
         .options(joinedload(Ticket.creator), joinedload(Ticket.responsible))
     ).all()
-    return {"ticket": tickets}
+    return {"tickets": tickets}
 
 
 def get_tickets_by_id(id: int, user: User, session: Session):
@@ -89,3 +89,10 @@ def delete_ticket(id: int, user: User, session: Session):
     session.commit()
 
     return {"ok": f"ticket {id} deleted"}
+
+
+# Technician responsible
+def queue_without_responsible(user: User, session: Session):
+    check_require_role(user.role, UserRole.TECHNICIAN)
+    queue = session.scalars(select(Ticket).where(Ticket.responsible_id == None)).all()
+    return {"tickets": queue}

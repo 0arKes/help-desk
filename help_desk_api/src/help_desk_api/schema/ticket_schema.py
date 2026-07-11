@@ -34,4 +34,8 @@ class ReadTicket(BaseModel):
 
 
 class ReadMyTickets(BaseModel):
-    ticket: list[ReadTicket]
+    tickets: list[ReadTicket]
+
+
+class ReadTicketsWithoutResponsible(BaseModel):
+    tickets: list[ReadTicket]
