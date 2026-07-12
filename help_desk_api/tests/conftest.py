@@ -2,6 +2,7 @@ import pytest
 from fastapi.testclient import TestClient
 from help_desk_api.db.base import mapper_registry
 from help_desk_api.db.enum.user_role import UserRole
+from help_desk_api.db.models.ticket import Ticket
 from help_desk_api.db.models.user import User
 from help_desk_api.db.session import get_session
 from help_desk_api.main import app
@@ -64,3 +65,18 @@ def token(client, user) -> str:
     )
     response_token = response.json()
     return response_token.get("access_token")
+
+
+@pytest.fixture
+def ticket(session, user) -> Ticket:
+    new_ticket = Ticket(
+        title="Title",
+        description="Description",
+        creator=user,
+        responsible_id=None,
+    )
+    session.add(new_ticket)
+    session.commit()
+    session.refresh(new_ticket)
+
+    return new_ticket
