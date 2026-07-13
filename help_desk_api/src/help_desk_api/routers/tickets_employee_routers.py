@@ -11,7 +11,7 @@ from help_desk_api.services.session_ticket_services import (
     create_ticket,
     delete_ticket,
     get_my_tickets,
-    get_tickets_by_id,
+    get_user_ticket_by_id,
     update_ticket,
 )
 from sqlalchemy.orm import Session
@@ -49,7 +49,7 @@ def read_ticket_by_id(
     current_user: User = Depends(get_current_user),
     session: Session = Depends(get_session),
 ):
-    return get_tickets_by_id(id, current_user, session)
+    return get_user_ticket_by_id(id, current_user, session)
 
 
 @router_employee_ticket.put(

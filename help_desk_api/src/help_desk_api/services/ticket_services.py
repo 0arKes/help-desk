@@ -14,6 +14,6 @@ def check_require_role(user_role: UserRole, allowed_role: UserRole):
 
 
 def validate_ticket_not_assigned(ticket: Ticket):
-    if ticket.responsible is not None:
+    if ticket.responsible_id is not None:
         raise TicketHasBeenAssigned()
     return
