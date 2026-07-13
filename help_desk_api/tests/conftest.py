@@ -80,3 +80,51 @@ def ticket(session, user) -> Ticket:
     session.refresh(new_ticket)
 
     return new_ticket
+
+
+@pytest.fixture
+def user_employee(session) -> User:
+    user = User(
+        name="test employee",
+        email="employee@test.com",
+        password=get_password_hash("123456"),
+        role=UserRole.EMPLOYEE,
+    )
+    session.add(user)
+    session.commit()
+    session.refresh(user)
+
+    return user
+
+
+@pytest.fixture
+def token_employee(client, user_employee) -> str:
+    response = client.post(
+        "/auth/login", data={"username": user_employee.email, "password": "123456"}
+    )
+    response_token = response.json()
+    return response_token.get("access_token")
+
+
+@pytest.fixture
+def user_technician(session) -> User:
+    user = User(
+        name="user technician",
+        email="employee@test.com",
+        password=get_password_hash("123456"),
+        role=UserRole.TECHNICIAN,
+    )
+    session.add(user)
+    session.commit()
+    session.refresh(user)
+
+    return user
+
+
+@pytest.fixture
+def token_technician(client, user_technician) -> str:
+    response = client.post(
+        "/auth/login", data={"username": user_technician.email, "password": "123456"}
+    )
+    response_token = response.json()
+    return response_token.get("access_token")
