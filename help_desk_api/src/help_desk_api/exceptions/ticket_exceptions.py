@@ -26,7 +26,7 @@ class TicketHasBeenAssigned(HTTPException):
 class TicketDoesNotBelongToUser(HTTPException):
     def __init__(self):
         super().__init__(
-            status_code=status.HTTP_401_UNAUTHORIZED,
+            status_code=status.HTTP_403_FORBIDDEN,
             detail="This ticket does not belong to you.",
         )
 

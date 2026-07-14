@@ -7,16 +7,16 @@ from help_desk_api.schema.ticket_schema import (
     ReadTicket,
 )
 from help_desk_api.security.auth_depedence import get_current_user
-from help_desk_api.services.session_ticket_services import (
+from help_desk_api.services.ticket_employee_services import (
     create_ticket,
-    delete_ticket,
-    get_my_tickets,
+    delete_ticket_by_id,
+    get_my_open_tickets,
     get_user_ticket_by_id,
-    update_ticket,
+    update_ticket_by_id,
 )
 from sqlalchemy.orm import Session
 
-router_employee_ticket = APIRouter(prefix="/ticket", tags=["Ticket"])
+router_employee_ticket = APIRouter(prefix="/ticket", tags=["Ticket for employee Users"])
 
 
 @router_employee_ticket.post(
@@ -34,11 +34,11 @@ def create_ticket_(
 @router_employee_ticket.get(
     "/", response_model=ReadMyTickets, status_code=status.HTTP_200_OK
 )
-def read_my_tickets(
+def read_my_open_tickets(
     current_user: User = Depends(get_current_user),
     session: Session = Depends(get_session),
 ):
-    return get_my_tickets(current_user, session)
+    return get_my_open_tickets(current_user, session)
 
 
 @router_employee_ticket.get(
@@ -61,7 +61,7 @@ def update_ticket_without_responsible(
     authenticate_user: User = Depends(get_current_user),
     session: Session = Depends(get_session),
 ):
-    return update_ticket(id, form, authenticate_user, session)
+    return update_ticket_by_id(id, form, authenticate_user, session)
 
 
 @router_employee_ticket.delete("/{id}", status_code=status.HTTP_204_NO_CONTENT)
@@ -70,4 +70,4 @@ def delete_ticket_without_responsible(
     authenticate_user: User = Depends(get_current_user),
     session: Session = Depends(get_session),
 ):
-    return delete_ticket(id, authenticate_user, session)
+    return delete_ticket_by_id(id, authenticate_user, session)

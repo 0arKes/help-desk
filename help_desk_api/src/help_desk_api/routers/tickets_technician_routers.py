@@ -7,7 +7,7 @@ from help_desk_api.schema.ticket_schema import (
     ReadTicketsWithoutResponsible,
 )
 from help_desk_api.security.auth_depedence import get_current_user
-from help_desk_api.services.session_ticket_services import (
+from help_desk_api.services.ticket_technician_services import (
     assign_responsible_technician,
     my_queue,
     queue_without_responsible,
