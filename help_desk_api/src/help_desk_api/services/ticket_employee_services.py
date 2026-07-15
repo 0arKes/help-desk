@@ -87,7 +87,11 @@ def delete_ticket_by_id(id: int, user: User, session: Session):
     validate_ticket_user(ticket, user)
     validate_ticket_not_assigned(ticket)
 
+    history = create_ticket_history(ticket, HistoryAction.DELETED, user)
+
     ticket.status = TicketStatus.DELETED
+    session.add(history)
     session.commit()
+    session.refresh(history)
 
     return {"ok": f"ticket {id} deleted"}
