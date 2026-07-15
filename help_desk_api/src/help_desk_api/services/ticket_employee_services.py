@@ -1,4 +1,5 @@
 from help_desk_api.db.enum.history_actions import HistoryAction
+from help_desk_api.db.enum.ticket_status import TicketStatus
 from help_desk_api.db.enum.user_role import UserRole
 from help_desk_api.db.models.ticket import Ticket
 from help_desk_api.db.models.user import User
@@ -45,7 +46,6 @@ def get_my_open_tickets(user: User, session: Session):
 
 def get_user_ticket_by_id(id: int, user: User, session: Session):
     ticket = get_ticket_by_id(id, session)
-    validate_ticket_user(ticket, user)
 
     return ticket
 
@@ -87,7 +87,7 @@ def delete_ticket_by_id(id: int, user: User, session: Session):
     validate_ticket_user(ticket, user)
     validate_ticket_not_assigned(ticket)
 
-    session.delete(ticket)
+    ticket.status = TicketStatus.DELETED
     session.commit()
 
     return {"ok": f"ticket {id} deleted"}

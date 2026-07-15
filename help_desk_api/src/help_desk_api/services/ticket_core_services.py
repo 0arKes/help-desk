@@ -20,6 +20,7 @@ def get_ticket_by_id(id: int, session: Session) -> Ticket:
     ticket = session.scalar(
         select(Ticket)
         .where(Ticket.id == id)
+        .where(Ticket.status != TicketStatus.DELETED)
         .options(joinedload(Ticket.creator), joinedload(Ticket.responsible))
     )
     if not ticket:
@@ -33,6 +34,7 @@ def get_open_employee_tickets(user: User, session: Session):
         select(Ticket)
         .where(Ticket.creator_id == user.id)
         .where(Ticket.status == TicketStatus.OPEN)
+        .where(Ticket.status != TicketStatus.DELETED)
         .options(joinedload(Ticket.creator), joinedload(Ticket.responsible))
     ).all()
 
@@ -68,4 +70,10 @@ def validate_ticket_owner(ticket: Ticket, user: User):
 def validate_ticket_not_resolved(ticket: Ticket):
     if ticket.status == TicketStatus.RESOLVED:
         raise InvalidTicketStatus()
+    return
+
+
+def validate_ticket_is_deleted(ticket: Ticket):
+    if ticket.status == TicketStatus.DELETED:
+        raise TicketNotFound()
     return
