@@ -77,7 +77,6 @@ def my_queue(user: User, session: Session):
 def resolve_ticket_by_id(id: int, user: User, session: Session):
     validate_require_role(user.role, UserRole.TECHNICIAN)
     ticket = get_ticket_by_id(id, session)
-    validate_ticket_not_assigned(ticket)
     validate_ticket_owner(ticket, user)
     validate_ticket_not_resolved(ticket)
 

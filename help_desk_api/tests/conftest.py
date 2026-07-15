@@ -110,7 +110,7 @@ def token_employee(client, user_employee) -> str:
 def user_technician(session) -> User:
     user = User(
         name="user technician",
-        email="employee@test.com",
+        email="technician@test.com",
         password=get_password_hash("123456"),
         role=UserRole.TECHNICIAN,
     )
@@ -128,3 +128,46 @@ def token_technician(client, user_technician) -> str:
     )
     response_token = response.json()
     return response_token.get("access_token")
+
+
+@pytest.fixture
+def user_secondary_technician(session) -> User:
+    user = User(
+        name="user secondary technician",
+        email="technician2@test.com",
+        password=get_password_hash("123456"),
+        role=UserRole.TECHNICIAN,
+    )
+    session.add(user)
+    session.commit()
+    session.refresh(user)
+
+    return user
+
+
+@pytest.fixture
+def token_secondary_technician(client, user_secondary_technician) -> str:
+    response = client.post(
+        "/auth/login",
+        data={"username": user_secondary_technician.email, "password": "123456"},
+    )
+    response_token = response.json()
+    return response_token.get("access_token")
+
+
+@pytest.fixture
+def assign_ticket(client, token_technician, ticket):
+    response = client.post(
+        "/ticket/technician/queue/1",
+        headers={"Authorization": f"bearer {token_technician}"},
+    )
+    return response
+
+
+@pytest.fixture
+def resolved_ticket(client, token_technician, ticket, assign_ticket):
+    response = client.post(
+        "/ticket/technician/queue/resolve/1",
+        headers={"Authorization": f"bearer {token_technician}"},
+    )
+    return response
