@@ -19,3 +19,5 @@ class User:
     responsible_tickets: Mapped[list["Ticket"]] = relationship(
         back_populates="responsible", init=False, foreign_keys="Ticket.responsible_id"
     )
+
+    ticket_history: Mapped[list["TicketHistory"]] = relationship(back_populates="user")

@@ -30,6 +30,10 @@ class Ticket:
         back_populates="responsible_tickets", foreign_keys=[responsible_id], init=False
     )
 
+    ticket_history: Mapped[list["TicketHistory"]] = relationship(
+        back_populates="ticket", init=False
+    )
+
     status: Mapped[TicketStatus] = mapped_column(
         Enum(TicketStatus), default=TicketStatus.OPEN
     )
