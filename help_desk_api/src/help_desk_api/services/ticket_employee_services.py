@@ -1,7 +1,9 @@
+from help_desk_api.db.enum.history_actions import HistoryAction
 from help_desk_api.db.enum.user_role import UserRole
 from help_desk_api.db.models.ticket import Ticket
 from help_desk_api.db.models.user import User
 from help_desk_api.schema.ticket_schema import CreateTicket
+from help_desk_api.services.history import create_ticket_history
 from help_desk_api.services.ticket_core_services import (
     get_open_employee_tickets,
     get_ticket_by_id,
@@ -23,10 +25,17 @@ def create_ticket(form: CreateTicket, user: User, session: Session):
         priority=form.priority,
         responsible_id=None,
     )
+    history = create_ticket_history(
+        new_ticket,
+        HistoryAction.CREATED,
+        user,
+    )
 
     session.add(new_ticket)
+    session.add(history)
     session.commit()
     session.refresh(new_ticket)
+    session.refresh(history)
     return new_ticket
 
 
@@ -46,10 +55,27 @@ def update_ticket_by_id(id: int, form: CreateTicket, user: User, session: Sessio
     validate_ticket_user(ticket, user)
     validate_ticket_not_assigned(ticket)
 
+    history = create_ticket_history(
+        ticket,
+        HistoryAction.UPDATED,
+        user,
+        _old_value=(
+            f"title={ticket.title}; "
+            f"description={ticket.description}; "
+            f"priority={ticket.priority.value}"
+        ),
+        _new_value=(
+            f"title={form.title}; "
+            f"description={form.description}; "
+            f"priority={form.priority.value}"
+        ),
+    )
+
     ticket.title = form.title
     ticket.description = form.description
     ticket.priority = form.priority
 
+    session.add(history)
     session.commit()
     session.refresh(ticket)
 
