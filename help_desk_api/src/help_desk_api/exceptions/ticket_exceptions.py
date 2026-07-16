@@ -37,3 +37,11 @@ class InvalidTicketStatus(HTTPException):
             status_code=status.HTTP_409_CONFLICT,
             detail="This ticket has been resolved.",
         )
+
+
+class InvalidTicketResolvedStatus(HTTPException):
+    def __init__(self):
+        super().__init__(
+            status_code=status.HTTP_409_CONFLICT,
+            detail="This ticket has not been resolved.",
+        )

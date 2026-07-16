@@ -12,6 +12,7 @@ from help_desk_api.services.ticket_employee_services import (
     delete_ticket_by_id,
     get_my_open_tickets,
     get_user_ticket_by_id,
+    reopen_employee_ticket,
     update_ticket_by_id,
 )
 from sqlalchemy.orm import Session
@@ -29,6 +30,17 @@ def create_ticket_(
 ):
 
     return create_ticket(form, authenticate_user, session)
+
+
+@router_employee_ticket.post(
+    "/reopen/{id}", response_model=ReadTicket, status_code=status.HTTP_200_OK
+)
+def reopen_ticket(
+    id: int,
+    authenticate_user: User = Depends(get_current_user),
+    session: Session = Depends(get_session),
+):
+    return reopen_employee_ticket(id, authenticate_user, session)
 
 
 @router_employee_ticket.get(

@@ -3,6 +3,7 @@ from help_desk_api.db.enum.user_role import UserRole
 from help_desk_api.db.models.ticket import Ticket
 from help_desk_api.db.models.user import User
 from help_desk_api.exceptions.ticket_exceptions import (
+    InvalidTicketResolvedStatus,
     InvalidTicketStatus,
     InvalidUserRole,
     TicketDoesNotBelongToUser,
@@ -77,3 +78,8 @@ def validate_ticket_is_deleted(ticket: Ticket):
     if ticket.status == TicketStatus.DELETED:
         raise TicketNotFound()
     return
+
+
+def validate_ticket_is_resolved(ticket: Ticket):
+    if ticket.status != TicketStatus.RESOLVED:
+        raise InvalidTicketResolvedStatus()

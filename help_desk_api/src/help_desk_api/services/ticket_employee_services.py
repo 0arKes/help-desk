@@ -9,6 +9,7 @@ from help_desk_api.services.ticket_core_services import (
     get_open_employee_tickets,
     get_ticket_by_id,
     validate_require_role,
+    validate_ticket_is_resolved,
     validate_ticket_not_assigned,
     validate_ticket_user,
 )
@@ -38,6 +39,29 @@ def create_ticket(form: CreateTicket, user: User, session: Session):
     session.refresh(new_ticket)
     session.refresh(history)
     return new_ticket
+
+
+def reopen_employee_ticket(id: int, user: User, session: Session):
+    validate_require_role(user.role, UserRole.EMPLOYEE)
+    ticket = get_user_ticket_by_id(id, user, session)
+    validate_ticket_is_resolved(ticket)
+
+    ticket.responsible = None
+    ticket.status = TicketStatus.OPEN
+
+    history = create_ticket_history(
+        ticket,
+        HistoryAction.REOPENED,
+        user,
+        _old_value=TicketStatus.RESOLVED.value,
+        _new_value=TicketStatus.OPEN.value,
+    )
+
+    session.add(history)
+    session.commit()
+    session.refresh(ticket)
+
+    return ticket
 
 
 def get_my_open_tickets(user: User, session: Session):
