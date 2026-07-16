@@ -16,6 +16,13 @@ from help_desk_api.services.ticket_core_services import (
 from sqlalchemy.orm import Session
 
 
+def get_user_ticket_by_id(id: int, user: User, session: Session):
+    ticket = get_ticket_by_id(id, session)
+    validate_ticket_user(ticket, user)
+
+    return ticket
+
+
 def create_ticket(form: CreateTicket, user: User, session: Session):
 
     validate_require_role(user.role, UserRole.EMPLOYEE)
@@ -37,7 +44,6 @@ def create_ticket(form: CreateTicket, user: User, session: Session):
     session.add(history)
     session.commit()
     session.refresh(new_ticket)
-    session.refresh(history)
     return new_ticket
 
 
@@ -69,16 +75,8 @@ def get_my_open_tickets(user: User, session: Session):
     return get_open_employee_tickets(user, session)
 
 
-def get_user_ticket_by_id(id: int, user: User, session: Session):
-    ticket = get_ticket_by_id(id, session)
-    validate_ticket_user(ticket, user)
-
-    return ticket
-
-
 def update_ticket_by_id(id: int, form: CreateTicket, user: User, session: Session):
-    ticket = get_ticket_by_id(id, session)
-    validate_ticket_user(ticket, user)
+    ticket = get_user_ticket_by_id(id, user, session)
     validate_ticket_not_assigned(ticket)
 
     history = create_ticket_history(
@@ -109,15 +107,19 @@ def update_ticket_by_id(id: int, form: CreateTicket, user: User, session: Sessio
 
 
 def delete_ticket_by_id(id: int, user: User, session: Session):
-    ticket = get_ticket_by_id(id, session)
-    validate_ticket_user(ticket, user)
+    ticket = get_user_ticket_by_id(id, user, session)
     validate_ticket_not_assigned(ticket)
 
-    history = create_ticket_history(ticket, HistoryAction.DELETED, user)
+    history = create_ticket_history(
+        ticket,
+        HistoryAction.DELETED,
+        user,
+        _old_value=TicketStatus.OPEN.value,
+        _new_value=TicketStatus.DELETED.value,
+    )
 
     ticket.status = TicketStatus.DELETED
     session.add(history)
     session.commit()
-    session.refresh(history)
 
     return {"ok": f"ticket {id} deleted"}
