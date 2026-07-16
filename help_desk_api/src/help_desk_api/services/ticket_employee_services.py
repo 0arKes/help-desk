@@ -41,11 +41,13 @@ def create_ticket(form: CreateTicket, user: User, session: Session):
 
 
 def get_my_open_tickets(user: User, session: Session):
+    validate_require_role(user.role, UserRole.EMPLOYEE)
     return get_open_employee_tickets(user, session)
 
 
 def get_user_ticket_by_id(id: int, user: User, session: Session):
     ticket = get_ticket_by_id(id, session)
+    validate_ticket_user(ticket, user)
 
     return ticket
 
