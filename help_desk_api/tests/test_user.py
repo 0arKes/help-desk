@@ -9,7 +9,7 @@ def test_register_user(client):
             "name": "User test",
             "email": "user_email@test.com",
             "password": "123456",
-            "role": "admin",
+            "role": "employee",
         },
     )
     response_json = response.json()
@@ -18,7 +18,7 @@ def test_register_user(client):
     assert response_json["name"] == "User test"
     assert response_json["email"] == "user_email@test.com"
     assert "password" not in response_json
-    assert response_json["role"] == "admin"
+    assert response_json["role"] == "employee"
 
 
 def test_with_exist_email(client, user):
@@ -75,7 +75,7 @@ def test_get_access_token_with_wrong_email(client):
 
 
 def test_get_me(client, token):
-    response = client.get("/auth/me", headers={"Authorization": f"Bearer {token}"})
+    response = client.get("/auth/whoami", headers={"Authorization": f"Bearer {token}"})
 
     response_json = response.json()
 
@@ -89,7 +89,7 @@ def test_get_me(client, token):
 
 def test_get_me_without_token(client):
     response: Response = client.get(
-        "/auth/me", headers={"Authorization": "Bearer no_content"}
+        "/auth/whoami", headers={"Authorization": "Bearer no_content"}
     )
 
     assert response.status_code == status.HTTP_403_FORBIDDEN
