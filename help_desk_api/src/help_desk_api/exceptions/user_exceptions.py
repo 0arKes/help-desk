@@ -18,3 +18,11 @@ class InvalidCredentials(HTTPException):
 class InvalidTokenAccess(HTTPException):
     def __init__(self):
         super().__init__(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid token")
+
+
+class NotAllowedAdmin(HTTPException):
+    def __init__(self):
+        super().__init__(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You need to be an administrator to perform this action.",
+        )
