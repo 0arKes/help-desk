@@ -3,14 +3,17 @@ from help_desk_api.db.models.ticket_history import TicketHistory
 from help_desk_api.db.models.user import User
 from help_desk_api.services.ticket_core_services import validate_require_role
 from sqlalchemy import select
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
 
 
-def get_ticket_histories(user: User, session: Session):
+async def get_ticket_histories(user: User, session: AsyncSession):
     validate_require_role(user.role, UserRole.ADMIN)
-    history = session.scalars(
+    results = await session.scalars(
         select(TicketHistory)
         .options(joinedload(TicketHistory.ticket), joinedload(TicketHistory.user))
         .order_by(TicketHistory.performed_at.desc())
-    ).all()
+    )
+    history = results.all()
+
     return {"histories": history}

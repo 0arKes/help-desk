@@ -6,14 +6,15 @@ from help_desk_api.db.session import get_session
 from help_desk_api.exceptions.user_exceptions import InvalidTokenAccess
 from help_desk_api.services.user_services import get_user_by_id
 from jwt import InvalidTokenError, decode
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 oauth2_scheme = OAuth2PasswordBearer("/auth/login")
 
 
-def get_current_user(
-    token: str = Depends(oauth2_scheme), session: Session = Depends(get_session)
+async def get_current_user(
+    token: str = Depends(oauth2_scheme), session: AsyncSession = Depends(get_session)
 ) -> User:
+
     try:
         payload = decode(token, settings.jwt_key, algorithms=[settings.jwt_algorithm])
     except InvalidTokenError:
@@ -24,7 +25,8 @@ def get_current_user(
     if not user_id:
         raise InvalidTokenAccess()
 
-    user = get_user_by_id(session, int(user_id))
+    user = await get_user_by_id(session, int(user_id))
+
     if not user:
         raise InvalidTokenAccess
 

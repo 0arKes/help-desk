@@ -11,11 +11,11 @@ from help_desk_api.security.password_hash import get_password_hash, verify_passw
 from help_desk_api.security.token import create_access_token
 from help_desk_api.services.ticket_core_services import validate_require_role
 from sqlalchemy import select
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
-def create_user(session: Session, form: CreateUser) -> User:
-    validate_email_available(session, form.email)
+async def create_user(session: AsyncSession, form: CreateUser) -> User:
+    await validate_email_available(session, form.email)
     validate_admin_creation(form.role)
 
     new_user = User(
@@ -25,33 +25,34 @@ def create_user(session: Session, form: CreateUser) -> User:
         role=form.role,
     )
     session.add(new_user)
-    session.commit()
-    session.refresh(new_user)
+    await session.commit()
+    await session.refresh(new_user)
 
     return new_user
 
 
-def validate_email_available(session: Session, email: str):
+async def validate_email_available(session: AsyncSession, email: str):
 
-    get_email = get_user_by_email(session, email)
+    get_email = await get_user_by_email(session, email)
+
     if get_email:
         raise EmailAlreadyExistsException()
 
 
-def get_user_by_email(session: Session, email: str) -> User | None:
-    get_user = session.scalar(select(User).where(User.email == email))
+async def get_user_by_email(session: AsyncSession, email: str) -> User | None:
+    get_user = await session.scalar(select(User).where(User.email == email))
 
     return get_user
 
 
-def get_user_by_id(session: Session, id: int) -> User | None:
-    get_user = session.scalar(select(User).where(User.id == id))
+async def get_user_by_id(session: AsyncSession, id: int) -> User | None:
+    get_user = await session.scalar(select(User).where(User.id == id))
 
     return get_user
 
 
-def authenticate_user(session: Session, form: OAuth2PasswordRequestForm):
-    user = get_user_by_email(session, form.username)
+async def authenticate_user(session: AsyncSession, form: OAuth2PasswordRequestForm):
+    user = await get_user_by_email(session, form.username)
 
     if not user:
         raise InvalidCredentials()
@@ -68,22 +69,22 @@ def validate_admin_creation(user_role: UserRole):
         raise NotAllowedAdmin()
 
 
-def update_current_user(form: UpdateUser, user: User, session: Session):
+async def update_current_user(form: UpdateUser, user: User, session: AsyncSession):
 
     if form.email != user.email:
-        validate_email_available(session, form.email)
+        await validate_email_available(session, form.email)
         user.email = form.email.lower()
 
     user.password = get_password_hash(form.password)
 
-    session.commit()
-    session.refresh(user)
+    await session.commit()
+    await session.refresh(user)
     return user
 
 
-def create_admin_user(form: CreateAdminUser, user: User, session: Session):
+async def create_admin_user(form: CreateAdminUser, user: User, session: AsyncSession):
     validate_require_role(user.role, UserRole.ADMIN)
-    validate_email_available(session, form.email)
+    await validate_email_available(session, form.email)
 
     new_user = User(
         name=form.name.capitalize(),
@@ -93,7 +94,7 @@ def create_admin_user(form: CreateAdminUser, user: User, session: Session):
     )
 
     session.add(new_user)
-    session.commit()
-    session.refresh(new_user)
+    await session.commit()
+    await session.refresh(new_user)
 
     return new_user

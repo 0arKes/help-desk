@@ -1,7 +1,6 @@
-from help_desk_api.db.base import engine
-from sqlalchemy.orm import Session
+from help_desk_api.db.base import AsyncSessionLocal
 
 
-def get_session():
-    with Session(engine) as session:
+async def get_session():
+    async with AsyncSessionLocal() as session:
         yield session

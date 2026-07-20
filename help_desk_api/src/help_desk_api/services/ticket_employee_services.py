@@ -13,17 +13,17 @@ from help_desk_api.services.ticket_core_services import (
     validate_ticket_not_assigned,
     validate_ticket_user,
 )
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 
-def get_user_ticket_by_id(id: int, user: User, session: Session):
-    ticket = get_ticket_by_id(id, session)
+async def get_user_ticket_by_id(id: int, user: User, session: AsyncSession):
+    ticket = await get_ticket_by_id(id, session)
     validate_ticket_user(ticket, user)
 
     return ticket
 
 
-def create_ticket(form: CreateTicket, user: User, session: Session):
+async def create_ticket(form: CreateTicket, user: User, session: AsyncSession):
 
     validate_require_role(user.role, UserRole.EMPLOYEE)
 
@@ -42,41 +42,21 @@ def create_ticket(form: CreateTicket, user: User, session: Session):
 
     session.add(new_ticket)
     session.add(history)
-    session.commit()
-    session.refresh(new_ticket)
-    return new_ticket
+    await session.commit()
+    await session.refresh(new_ticket)
+
+    return await get_ticket_by_id(new_ticket.id, session)
 
 
-def reopen_employee_ticket(id: int, user: User, session: Session):
+async def get_my_open_tickets(user: User, session: AsyncSession):
     validate_require_role(user.role, UserRole.EMPLOYEE)
-    ticket = get_user_ticket_by_id(id, user, session)
-    validate_ticket_is_resolved(ticket)
-
-    ticket.responsible = None
-    ticket.status = TicketStatus.OPEN
-
-    history = create_ticket_history(
-        ticket,
-        HistoryAction.REOPENED,
-        user,
-        _old_value=TicketStatus.RESOLVED.value,
-        _new_value=TicketStatus.OPEN.value,
-    )
-
-    session.add(history)
-    session.commit()
-    session.refresh(ticket)
-
-    return ticket
+    return await get_open_employee_tickets(user, session)
 
 
-def get_my_open_tickets(user: User, session: Session):
-    validate_require_role(user.role, UserRole.EMPLOYEE)
-    return get_open_employee_tickets(user, session)
-
-
-def update_ticket_by_id(id: int, form: CreateTicket, user: User, session: Session):
-    ticket = get_user_ticket_by_id(id, user, session)
+async def update_ticket_by_id(
+    id: int, form: CreateTicket, user: User, session: AsyncSession
+):
+    ticket = await get_user_ticket_by_id(id, user, session)
     validate_ticket_not_assigned(ticket)
 
     history = create_ticket_history(
@@ -100,14 +80,14 @@ def update_ticket_by_id(id: int, form: CreateTicket, user: User, session: Sessio
     ticket.priority = form.priority
 
     session.add(history)
-    session.commit()
-    session.refresh(ticket)
+    await session.commit()
+    await session.refresh(ticket)
 
     return ticket
 
 
-def delete_ticket_by_id(id: int, user: User, session: Session):
-    ticket = get_user_ticket_by_id(id, user, session)
+async def delete_ticket_by_id(id: int, user: User, session: AsyncSession):
+    ticket = await get_user_ticket_by_id(id, user, session)
     validate_ticket_not_assigned(ticket)
 
     history = create_ticket_history(
@@ -120,6 +100,29 @@ def delete_ticket_by_id(id: int, user: User, session: Session):
 
     ticket.status = TicketStatus.DELETED
     session.add(history)
-    session.commit()
+    await session.commit()
 
     return {"ok": f"ticket {id} deleted"}
+
+
+async def reopen_employee_ticket(id: int, user: User, session: AsyncSession):
+    validate_require_role(user.role, UserRole.EMPLOYEE)
+    ticket = await get_user_ticket_by_id(id, user, session)
+    validate_ticket_is_resolved(ticket)
+
+    ticket.responsible = None
+    ticket.status = TicketStatus.OPEN
+
+    history = create_ticket_history(
+        ticket,
+        HistoryAction.REOPENED,
+        user,
+        _old_value=TicketStatus.RESOLVED.value,
+        _new_value=TicketStatus.OPEN.value,
+    )
+
+    session.add(history)
+    await session.commit()
+    await session.refresh(ticket)
+
+    return ticket

@@ -11,14 +11,15 @@ from help_desk_api.exceptions.ticket_exceptions import (
     TicketNotFound,
 )
 from sqlalchemy import select
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
 
 ### db
 
 
-def get_ticket_by_id(id: int, session: Session) -> Ticket:
+async def get_ticket_by_id(id: int, session: AsyncSession) -> Ticket:
 
-    ticket = session.scalar(
+    ticket = await session.scalar(
         select(Ticket)
         .where(Ticket.id == id)
         .where(Ticket.status != TicketStatus.DELETED)
@@ -30,14 +31,16 @@ def get_ticket_by_id(id: int, session: Session) -> Ticket:
     return ticket
 
 
-def get_open_employee_tickets(user: User, session: Session):
-    tickets = session.scalars(
+async def get_open_employee_tickets(user: User, session: AsyncSession):
+    results = await session.scalars(
         select(Ticket)
         .where(Ticket.creator_id == user.id)
         .where(Ticket.status == TicketStatus.OPEN)
         .where(Ticket.status != TicketStatus.DELETED)
         .options(joinedload(Ticket.creator), joinedload(Ticket.responsible))
-    ).all()
+    )
+
+    tickets = results.all()
 
     return {"tickets": tickets}
 

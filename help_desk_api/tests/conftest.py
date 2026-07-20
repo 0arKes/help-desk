@@ -1,4 +1,5 @@
 import pytest
+import pytest_asyncio
 from fastapi.testclient import TestClient
 from help_desk_api.db.base import mapper_registry
 from help_desk_api.db.enum.user_role import UserRole
@@ -7,8 +8,7 @@ from help_desk_api.db.models.user import User
 from help_desk_api.db.session import get_session
 from help_desk_api.main import app
 from help_desk_api.security.password_hash import get_password_hash
-from sqlalchemy import create_engine
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import async_sessionmaker, create_async_engine
 from sqlalchemy.pool import StaticPool
 
 
@@ -26,21 +26,29 @@ def client(session):
     app.dependency_overrides.clear()
 
 
-@pytest.fixture
-def session():
-    engine = create_engine(
-        "sqlite:///:memory:",
+@pytest_asyncio.fixture
+async def session():
+    engine = create_async_engine(
+        "sqlite+aiosqlite:///:memory:",
         connect_args={"check_same_thread": False},
         poolclass=StaticPool,
     )
 
-    mapper_registry.metadata.create_all(engine)
+    AsyncSessionMaker = async_sessionmaker(
+        engine,
+        expire_on_commit=False,
+    )
 
-    with Session(engine) as session:
+    async with engine.begin() as conn:
+        await conn.run_sync(mapper_registry.metadata.create_all)
+
+    async with AsyncSessionMaker() as session:
         yield session
 
-    mapper_registry.metadata.drop_all(engine)
-    engine.dispose()
+    async with engine.begin() as conn:
+        await conn.run_sync(mapper_registry.metadata.drop_all)
+
+    await engine.dispose()
 
 
 @pytest.fixture

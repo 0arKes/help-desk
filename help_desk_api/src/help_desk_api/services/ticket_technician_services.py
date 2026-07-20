@@ -13,10 +13,11 @@ from help_desk_api.services.ticket_core_services import (
     validate_ticket_owner,
 )
 from sqlalchemy import case, select
-from sqlalchemy.orm import Session, joinedload
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy.orm import joinedload
 
 
-def queue_without_responsible(user: User, session: Session):
+async def queue_without_responsible(user: User, session: AsyncSession):
     validate_require_role(user.role, UserRole.TECHNICIAN)
 
     priority_order = case(
@@ -25,20 +26,21 @@ def queue_without_responsible(user: User, session: Session):
         (Ticket.priority == TicketPriority.LOW, 1),
     )
 
-    queue = session.scalars(
+    results = await session.scalars(
         select(Ticket)
         .where(Ticket.responsible_id.is_(None))
         .where(Ticket.status == TicketStatus.OPEN)
         .options(joinedload(Ticket.creator), joinedload(Ticket.responsible))
         .order_by(priority_order.desc(), Ticket.created_at.asc())
-    ).all()
+    )
+    queue = results.all()
 
     return {"tickets": queue}
 
 
-def assign_responsible_technician(id: int, user: User, session: Session):
+async def assign_responsible_technician(id: int, user: User, session: AsyncSession):
     validate_require_role(user.role, UserRole.TECHNICIAN)
-    ticket = get_ticket_by_id(id, session)
+    ticket = await get_ticket_by_id(id, session)
     validate_ticket_not_assigned(ticket)
     validate_ticket_not_resolved(ticket)
 
@@ -53,15 +55,17 @@ def assign_responsible_technician(id: int, user: User, session: Session):
     ticket.status = TicketStatus.IN_PROGRESS
 
     session.add(history)
-    session.commit()
-    session.refresh(ticket)
+    await session.commit()
+    await session.refresh(ticket)
 
     return ticket
 
 
-def remove_responsible_ticket_technician(id: int, user: User, session: Session):
+async def remove_responsible_ticket_technician(
+    id: int, user: User, session: AsyncSession
+):
     validate_require_role(user.role, UserRole.TECHNICIAN)
-    ticket = get_ticket_by_id(id, session)
+    ticket = await get_ticket_by_id(id, session)
     validate_ticket_owner(ticket, user)
     validate_ticket_not_resolved(ticket)
 
@@ -77,27 +81,28 @@ def remove_responsible_ticket_technician(id: int, user: User, session: Session):
     ticket.status = TicketStatus.OPEN
 
     session.add(history)
-    session.commit()
-    session.refresh(ticket)
+    await session.commit()
+    await session.refresh(ticket)
 
     return ticket
 
 
-def my_queue(user: User, session: Session):
+async def my_queue(user: User, session: AsyncSession):
     validate_require_role(user.role, UserRole.TECHNICIAN)
-    tickets = session.scalars(
+    results = await session.scalars(
         select(Ticket)
         .where(Ticket.responsible_id == user.id)
         .where(Ticket.status == TicketStatus.IN_PROGRESS)
         .options(joinedload(Ticket.creator), joinedload(Ticket.responsible))
-    ).all()
+    )
+    tickets = results.all()
 
     return {"tickets": tickets}
 
 
-def resolve_ticket_by_id(id: int, user: User, session: Session):
+async def resolve_ticket_by_id(id: int, user: User, session: AsyncSession):
     validate_require_role(user.role, UserRole.TECHNICIAN)
-    ticket = get_ticket_by_id(id, session)
+    ticket = await get_ticket_by_id(id, session)
     validate_ticket_owner(ticket, user)
     validate_ticket_not_resolved(ticket)
 
@@ -112,7 +117,7 @@ def resolve_ticket_by_id(id: int, user: User, session: Session):
     ticket.status = TicketStatus.RESOLVED
 
     session.add(history)
-    session.commit()
-    session.refresh(ticket)
+    await session.commit()
+    await session.refresh(ticket)
 
     return ticket

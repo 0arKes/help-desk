@@ -11,7 +11,7 @@ from help_desk_api.services.ticket_history_services import get_ticket_histories
 from help_desk_api.services.user_services import (
     create_admin_user,
 )
-from sqlalchemy.orm import Session
+from sqlalchemy.ext.asyncio import AsyncSession
 
 router_admin = APIRouter(prefix="/admin", tags=["Admin"])
 
@@ -19,17 +19,17 @@ router_admin = APIRouter(prefix="/admin", tags=["Admin"])
 @router_admin.get(
     "/history", response_model=ReadHistories, status_code=status.HTTP_200_OK
 )
-def get_history(
+async def get_history(
     authenticate_user: User = Depends(get_current_user),
-    session: Session = Depends(get_session),
+    session: AsyncSession = Depends(get_session),
 ):
-    return get_ticket_histories(authenticate_user, session)
+    return await get_ticket_histories(authenticate_user, session)
 
 
 @router_admin.post("/register/makeadmin", response_model=ReadUser)
-def create_admin(
+async def create_admin(
     form: CreateAdminUser,
     authenticate_user: User = Depends(get_current_user),
-    session: Session = Depends(get_session),
+    session: AsyncSession = Depends(get_session),
 ):
-    return create_admin_user(form, authenticate_user, session)
+    return await create_admin_user(form, authenticate_user, session)
