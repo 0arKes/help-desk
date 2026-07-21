@@ -30,7 +30,7 @@ def upgrade() -> None:
         sa.Column("responsible_id", sa.Integer(), nullable=True),
         sa.Column(
             "status",
-            sa.Enum("OPEN", "IN_PROGRESS", "RESOLVED", name="ticketstatus"),
+            sa.Enum("OPEN", "IN_PROGRESS", "RESOLVED", "DELETED", name="ticketstatus"),
             nullable=False,
         ),
         sa.Column(
