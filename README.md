@@ -66,6 +66,7 @@ Meu principal objetivo com este projeto foi praticar conceitos fundamentais do d
     <li><a href="#executando-o-projeto">🚀 Executando o Projeto</a></li>
     <li><a href="#variaveis-de-ambiente">⚙️ Variáveis de Ambiente</a></li>
     <li><a href="#testes">👁️‍🗨️ Testes</a></li>
+    <li><a href="#deploy">🚀 Deploy</a></li>
     <li><a href="#licenca">🪪 Licença</a></li>
 </ul>
 
@@ -524,6 +525,10 @@ Para executar os testes:
 </code></pre>
 
 <hr>
+
+<h2 id="deploy">🚀 Deploy</h2>
+<p>Para acessar o deploy do render, basta clicar no <a href="https://help-desk-lln7.onrender.com/docs">Link</a>.</p>
+
 
 <h2 id="licenca">🪪 Licença</h2>
 
