@@ -346,11 +346,11 @@ Representa um chamado de suporte criado por um colaborador.
 </p>
 
 <ul>
-    <li><strong>id</strong> — Identificador único.</li>
+    <li><strong>id</strong> — Identificador único. [pk]</li>
     <li><strong>title</strong> — Título do chamado.</li>
     <li><strong>description</strong> — Descrição do problema.</li>
-    <li><strong>creator_id</strong> — Usuário que abriu o chamado.</li>
-    <li><strong>responsible_id</strong> — Técnico responsável pelo atendimento.</li>
+    <li><strong>creator_id</strong> — Usuário que abriu o chamado. [fk]</li>
+    <li><strong>responsible_id</strong> — Técnico responsável pelo atendimento. [fk]</li>
     <li><strong>priority</strong> — Prioridade definida na abertura.</li>
     <li><strong>status</strong> — Situação atual do chamado.</li>
     <li><strong>created_at</strong> — Data de criação.</li>
@@ -365,9 +365,9 @@ Registra todas as ações realizadas em um chamado.
 </p>
 
 <ul>
-    <li><strong>id</strong> — Identificador único.</li>
-    <li><strong>ticket_id</strong> — Chamado relacionado.</li>
-    <li><strong>user_id</strong> — Usuário que realizou a ação.</li>
+    <li><strong>id</strong> — Identificador único. [pk]</li>
+    <li><strong>ticket_id</strong> — Chamado relacionado. [fk]</li>
+    <li><strong>user_id</strong> — Usuário que realizou a ação. [fk]</li>
     <li><strong>action</strong> — Operação executada.</li>
     <li><strong>old_value</strong> — Valor anterior, quando existir.</li>
     <li><strong>new_value</strong> — Novo valor registrado.</li>
