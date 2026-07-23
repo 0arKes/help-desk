@@ -67,6 +67,7 @@ Meu principal objetivo com este projeto foi praticar conceitos fundamentais do d
     <li><a href="#variaveis-de-ambiente">⚙️ Variáveis de Ambiente</a></li>
     <li><a href="#testes">👁️‍🗨️ Testes</a></li>
     <li><a href="#deploy">🚀 Deploy</a></li>
+    <li><a href="#integracao-continua">⚙️ Integracão Continua</a></li>
     <li><a href="#licenca">🪪 Licença</a></li>
 </ul>
 
@@ -529,6 +530,19 @@ Para executar os testes:
 <h2 id="deploy">🚀 Deploy</h2>
 <p>Para acessar o deploy do render, basta clicar no <a href="https://help-desk-lln7.onrender.com/docs">Link</a>.</p>
 
+<h2 id="integracao-continua">⚙️ Integração Contínua</h2>
+
+<p>
+
+Configurei uma pipeline de <strong>GitHub Actions</strong> para executar automaticamente os testes sempre que um <strong>push</strong> ou <strong>pull request</strong> é enviado ao repositório. Dessa forma, consigo verificar rapidamente se uma alteração introduziu algum problema antes de ela ser integrada ao projeto.
+
+</p>
+
+<p>
+
+Durante a execução, a pipeline prepara o ambiente Python, instala as dependências com <strong>Poetry</strong>, carrega as variáveis de ambiente configuradas no GitHub e executa toda a suíte de testes utilizando <strong>Pytest</strong>. Como os testes utilizam um banco SQLite em memória, não foi necessário configurar containers nem executar migrations, deixando a execução mais rápida.
+
+</p>
 
 <h2 id="licenca">🪪 Licença</h2>
 
