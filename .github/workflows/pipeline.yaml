@@ -1,0 +1,33 @@
+name: Pipeline
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      JWT_KEY: ${{ secrets.JWT_KEY }}
+      JWT_ALGORITHM: ${{ secrets.JWT_ALGORITHM }}
+      JWT_EXP: ${{ secrets.JWT_EXP }}
+
+    steps:
+      - name: Copiar repositório
+        uses: actions/checkout@v5
+
+      - name: Configurar Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: "3.14"
+
+      - name: Instalar Poetry
+        run: pip install poetry
+
+      - name: Instalar dependências
+        working-directory: ./help_desk_api
+        run: poetry install
+
+      - name: Executar testes
+        working-directory: ./help_desk_api
+        run: poetry run pytest
