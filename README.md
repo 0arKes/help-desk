@@ -317,7 +317,7 @@ help-desk-api/
 
 <p>
 
-Modelei o banco de dados utilizando <strong>SQLite</strong> no inicio (no render migrei para postgresql), separando as informações em três entidades principais: usuários, chamados e histórico. Essa estrutura mantém os dados organizados e permite acompanhar todas as ações realizadas durante o atendimento de um chamado.
+Modelei o banco de dados utilizando <strong>SQLite</strong> no inicio (no Railway migrei para postgresql), separando as informações em três entidades principais: usuários, chamados e histórico. Essa estrutura mantém os dados organizados e permite acompanhar todas as ações realizadas durante o atendimento de um chamado.
 
 </p>
 
@@ -528,7 +528,7 @@ Para executar os testes:
 <hr>
 
 <h2 id="deploy">🚀 Deploy</h2>
-<p>Para acessar o deploy do render, basta clicar no <a href="https://help-desk-lln7.onrender.com/docs">Link</a>.</p>
+<p>Para acessar o deploy do Railway, basta clicar no <a href="https://help-desk-db.up.railway.app/docs">Link</a>.</p>
 
 <h2 id="integracao-continua">⚙️ Integração Contínua</h2>
 
